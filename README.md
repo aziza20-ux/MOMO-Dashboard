@@ -86,3 +86,7 @@ The application will typically run on http://127.0.0.1:5000/.
 
 ### Database
 The application uses SQLite, and the database file sms_database.db will be created in the root directory upon the first run. SQLAlchemy handles the schema definition and migrations automatically.
+
+The link to demo video:  https://www.loom.com/share/4949e0904b484a9685018224d2f2cf4e?sid=ce45b448-1510-4851-b035-73d0b6bd9570
+
+The link to full the documentation of our projects:  https://docs.google.com/document/d/1CYUR7C270geILUltFvWBOZ07qaULzbC-bZ3leMhfQLo/edit?tab=t.0#heading=h.rmy4nmj9gvmf
