@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MoMo SMS Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Glassmorphism effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Gradient backgrounds */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .gradient-bg-2 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .gradient-bg-3 {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        /* Sidebar animations */
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+        .sidebar-item:hover {
+            transform: translateX(4px);
+        }
+
+        /* Modal animations */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        /* Card hover effects */
+        .hover-card {
+            transition: all 0.3s ease;
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Pulse animation for stats */
+        .pulse-stat {
+            animation: pulse-stat 2s infinite;
+        }
+        @keyframes pulse-stat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Mobile sidebar */
+        .sidebar-mobile {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar-mobile.open {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+    
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-white shadow-2xl z-50 lg:translate-x-0 sidebar-mobile lg:sidebar-mobile">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <i data-lucide="smartphone" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">MoMo SMS</h1>
+                    <p class="text-sm text-gray-500">Dashboard</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="mt-6 px-4">
+            <div class="space-y-2">
+                <a href="#" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-xl font-medium">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#upload" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl">
+                    <i data-lucide="upload" class="w-5 h-5"></i>
+                    <span>Upload Data</span>
+                </a>
+                <a href="#filters" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl">
+                    <i data-lucide="filter" class="w-5 h-5"></i>
+                    <span>Filters</span>
+                </a>
+                <a href="#analytics" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#transactions" class="sidebar-item flex items-center space-x-3 px-4 py-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl">
+                    <i data-lucide="list" class="w-5 h-5"></i>
+                    <span>Transactions</span>
+                </a>
+            </div>
+        </nav>
+        
+        <div class="absolute bottom-6 left-4 right-4">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-4 text-white">
+                <div class="flex items-center space-x-3 mb-2">
+                    <div class="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium">{{ username }}</p>
+                        <p class="text-xs opacity-75">Premium User</p>
+                    </div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="flex items-center justify-center space-x-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg py-2 px-3 text-sm font-medium transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-64 min-h-screen">
+        <!-- Top Navigation -->
+        <nav class="bg-white shadow-sm border-b border-gray-100 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="lg:hidden p-2 rounded-lg hover:bg-gray-100">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+                        <p class="text-gray-500">Welcome back, manage your SMS transactions</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="p-2 rounded-lg hover:bg-gray-100 relative">
+                            <i data-lucide="bell" class="w-6 h-6 text-gray-600"></i>
+                            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                        </button>
+                    </div>
+                    <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm font-medium">{{ username[0].upper() }}</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-6">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="p-4 mb-3 rounded-xl border-l-4 animate-pulse
+                            {% if category == 'error' %}bg-red-50 border-red-400 text-red-700{% elif category == 'success' %}bg-green-50 border-green-400 text-green-700{% else %}bg-blue-50 border-blue-400 text-blue-700{% endif %}">
+                            <div class="flex items-center">
+                                <i data-lucide="{% if category == 'error' %}alert-circle{% elif category == 'success' %}check-circle{% else %}info{% endif %}" class="w-5 h-5 mr-3"></i>
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+
+
+            <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Upload SMS Data (XML)</h2>
+                <form action="{{ url_for('upload_xml') }}" method="POST" enctype="multipart/form-data" class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-4">
+                    <input type="file" name="xml_file" accept=".xml" required
+                           class="block w-full md:w-auto text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                                  file:rounded-md file:border-0 file:text-sm file:font-semibold
+                                  file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100
+                                  border border-gray-300 rounded-md p-1">
+                    <button type="submit"
+                            class="px-6 py-2 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700
+                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                                   transition duration-150 ease-in-out w-full md:w-auto">
+                        Upload XML
+                    </button>
+                </form>
+                <p class="text-sm text-gray-500 mt-2">Please upload your SMS backup XML file to populate your dashboard.</p>
+            </section>
+
+            <!-- Filters Section -->
+            <section id="filters" class="mb-8">
+                <div class="glass-card rounded-2xl p-6 hover-card">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                            <i data-lucide="sliders" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Filter Transactions</h2>
+                            <p class="text-gray-500">Refine your data view</p>
+                        </div>
+                    </div>
+                    
+                    <form action="{{ url_for('dashboard') }}" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        <div class="space-y-2">
+                            <label for="transaction_type" class="block text-sm font-semibold text-gray-700">Transaction Type</label>
+                            <select id="transaction_type" name="transaction_type"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="">All Types</option>
+                                <option value="1" {% if current_filters.transaction_type == '1' %}selected{% endif %}>Received</option>
+                                <option value="2" {% if current_filters.transaction_type == '2' %}selected{% endif %}>Sent</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="start_date" class="block text-sm font-semibold text-gray-700">Start Date</label>
+                            <input type="date" id="start_date" name="start_date"
+                                   value="{{ current_filters.start_date }}"
+                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="end_date" class="block text-sm font-semibold text-gray-700">End Date</label>
+                            <input type="date" id="end_date" name="end_date"
+                                   value="{{ current_filters.end_date }}"
+                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="min_amount" class="block text-sm font-semibold text-gray-700">Min Amount</label>
+                            <input type="number" step="0.01" id="min_amount" name="min_amount"
+                                   value="{{ current_filters.min_amount }}"
+                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="100">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="max_amount" class="block text-sm font-semibold text-gray-700">Max Amount</label>
+                            <input type="number" step="0.01" id="max_amount" name="max_amount"
+                                   value="{{ current_filters.max_amount }}"
+                                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="10000">
+                        </div>
+                        <div class="col-span-full flex space-x-4 mt-4">
+                            <button type="submit"
+                                    class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105">
+                                <i data-lucide="search" class="w-5 h-5 inline mr-2"></i>
+                                Apply Filters
+                            </button>
+                            <button type="button" onclick="window.location.href='{{ url_for('dashboard') }}'"
+                                    class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-xl hover:bg-gray-200 transition-colors">
+                                <i data-lucide="x" class="w-5 h-5 inline mr-2"></i>
+                                Clear Filters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Stats Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-card rounded-2xl p-6 hover-card pulse-stat">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-600 mb-2">Total SMS Records</h3>
+                            <p class="text-4xl font-bold text-gray-800">{{ summary_counts.total_sms }}</p>
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="message-circle" class="w-8 h-8 text-white"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-green-600">
+                        <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i>
+                        <span class="text-sm font-medium">All time</span>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 hover-card pulse-stat">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-600 mb-2">Received SMS</h3>
+                            <p class="text-4xl font-bold text-green-600">{{ summary_counts.received_sms }}</p>
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="arrow-down-circle" class="w-8 h-8 text-white"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-green-600">
+                        <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i>
+                        <span class="text-sm font-medium">Incoming</span>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 hover-card pulse-stat">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-600 mb-2">Sent SMS</h3>
+                            <p class="text-4xl font-bold text-red-600">{{ summary_counts.sent_sms }}</p>
+                        </div>
+                        <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                            <i data-lucide="arrow-up-circle" class="w-8 h-8 text-white"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-red-600">
+                        <i data-lucide="trending-up" class="w-4 h-4 mr-1"></i>
+                        <span class="text-sm font-medium">Outgoing</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="glass-card rounded-2xl p-6 hover-card">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="pie-chart" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800">Transaction Volume by Type</h2>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="transactionTypeChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 hover-card">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="bar-chart" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800">Monthly Transaction Volume</h2>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="monthlyVolumeChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-6 hover-card lg:col-span-2">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800">Total Received vs. Sent Amounts</h2>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="amountDistributionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transactions Table -->
+            <section id="transactions" class="glass-card rounded-2xl p-6 hover-card">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="table" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800">Latest SMS Transactions</h2>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        Showing filtered results
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <div class="max-h-96 overflow-y-auto custom-scrollbar rounded-xl border border-gray-200">
+                        {% if transactions %}
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50 sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Address</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Amount</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Message</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Contact</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for transaction in transactions %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ transaction.readable_date }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ transaction.address }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if transaction.type == '1' %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <i data-lucide="arrow-down" class="w-3 h-3 mr-1"></i>
+                                                Received
+                                            </span>
+                                        {% elif transaction.type == '2' %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <i data-lucide="arrow-up" class="w-3 h-3 mr-1"></i>
+                                                Sent
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Unknown</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                        {% if transaction.amount is not none %}
+                                            {{ "%.2f"|format(transaction.amount) }} RWF
+                                        {% else %}
+                                            <span class="text-gray-400">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                                        <div class="truncate">{{ transaction.body }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ transaction.contact_name or 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <button onclick="openTransactionDetailsModal({{ transaction.id }})"
+                                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-blue-700 bg-blue-100 hover:bg-blue-200 transition-colors">
+                                            <i data-lucide="eye" class="w-3 h-3 mr-1"></i>
+                                            View
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="text-center py-12">
+                            <i data-lucide="inbox" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                            <p class="text-gray-500 font-medium">No transactions found</p>
+                            <p class="text-sm text-gray-400">Upload your XML file or adjust your filters</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Transaction Details Modal -->
+    <div id="transactionDetailsModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Transaction Details</h2>
+                </div>
+                <button onclick="closeTransactionDetailsModal()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i data-lucide="x" class="w-6 h-6 text-gray-600"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-4">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Transaction ID</label>
+                        <p id="detail_id" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Date & Time</label>
+                        <p id="detail_readable_date" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Transaction Type</label>
+                        <p id="detail_type" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Phone Address</label>
+                        <p id="detail_address" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Amount</label>
+                        <p id="detail_amount" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Contact Name</label>
+                        <p id="detail_contact_name" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Service Center</label>
+                        <p id="detail_service_center" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Protocol</label>
+                        <p id="detail_protocol" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Subject</label>
+                        <p id="detail_subject" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Read Status</label>
+                        <p id="detail_read" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Status</label>
+                        <p id="detail_status" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Locked</label>
+                        <p id="detail_locked" class="text-lg font-medium text-gray-900 mt-1"></p>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <div class="bg-blue-50 rounded-xl p-4">
+                        <label class="text-sm font-semibold text-gray-600">Message Body</label>
+                        <p id="detail_body" class="text-gray-900 mt-2 leading-relaxed"></p>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2">
+                    <details class="bg-gray-50 rounded-xl p-4">
+                        <summary class="text-sm font-semibold text-gray-600 cursor-pointer">Technical Details</summary>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-xs font-medium text-gray-500">TOA</label>
+                                <p id="detail_toa" class="text-sm text-gray-700 mt-1"></p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500">SC TOA</label>
+                                <p id="detail_sc_toa" class="text-sm text-gray-700 mt-1"></p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-gray-500">Sub ID</label>
+                                <p id="detail_sub_id" class="text-sm text-gray-700 mt-1"></p>
+                            </div>
+                            <div class="md:col-span-3">
+                                <label class="text-xs font-medium text-gray-500">Date Sent (Raw)</label>
+                                <p id="detail_date_sent" class="text-sm text-gray-700 mt-1"></p>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pass data to JavaScript for charts -->
+    <script>
+        const chartVolumeByTypeData = {{ chart_volume_by_type | tojson }};
+        const chartMonthlyVolumeData = {{ chart_monthly_volume | tojson }};
+        const chartAmountDistributionData = {{ chart_amount_distribution | tojson }};
+    </script>
+    
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Sidebar functionality
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('hidden');
+        }
+
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Chart configurations with modern styling
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: {
+                            family: 'Inter',
+                            size: 12
+                        }
+                    }
+                }
+            }
+        };
+
+        // 1. Transaction Volume by Type (Doughnut Chart)
+        const transactionTypeCtx = document.getElementById('transactionTypeChart').getContext('2d');
+        new Chart(transactionTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: chartVolumeByTypeData.labels,
+                datasets: [{
+                    data: chartVolumeByTypeData.data,
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)', // Green for Received
+                        'rgba(239, 68, 68, 0.8)',  // Red for Sent
+                        'rgba(156, 163, 175, 0.8)' // Gray for Other
+                    ],
+                    borderColor: [
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(156, 163, 175, 1)'
+                    ],
+                    borderWidth: 3,
+                    cutout: '60%'
+                }]
+            },
+            options: {
+                ...chartOptions,
+                plugins: {
+                    ...chartOptions.plugins,
+                    legend: {
+                        ...chartOptions.plugins.legend,
+                        display: true
+                    }
+                }
+            }
+        });
+
+        // 2. Monthly Transaction Volume (Gradient Bar Chart)
+        const monthlyVolumeCtx = document.getElementById('monthlyVolumeChart').getContext('2d');
+        const gradient = monthlyVolumeCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+        gradient.addColorStop(1, 'rgba(147, 51, 234, 0.8)');
+
+        new Chart(monthlyVolumeCtx, {
+            type: 'bar',
+            data: {
+                labels: chartMonthlyVolumeData.labels,
+                datasets: [{
+                    label: 'Total Amount (RWF)',
+                    data: chartMonthlyVolumeData.data,
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                ...chartOptions,
+                plugins: {
+                    ...chartOptions.plugins,
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. Amount Distribution (Horizontal Bar Chart)
+        const amountDistributionCtx = document.getElementById('amountDistributionChart').getContext('2d');
+        new Chart(amountDistributionCtx, {
+            type: 'bar',
+            data: {
+                labels: chartAmountDistributionData.labels,
+                datasets: [{
+                    label: 'Total Amount (RWF)',
+                    data: chartAmountDistributionData.data,
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)', // Received
+                        'rgba(239, 68, 68, 0.8)'  // Sent
+                    ],
+                    borderColor: [
+                        'rgba(34, 197, 94, 1)',
+                        'rgba(239, 68, 68, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                ...chartOptions,
+                indexAxis: 'y',
+                plugins: {
+                    ...chartOptions.plugins,
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Transaction Details Modal Logic
+        const modal = document.getElementById('transactionDetailsModal');
+
+        window.openTransactionDetailsModal = async function(transactionId) {
+            try {
+                const response = await fetch(`/api/transaction/${transactionId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Populate modal with fetched data
+                document.getElementById('detail_id').textContent = data.id || 'N/A';
+                document.getElementById('detail_readable_date').textContent = data.readable_date || 'N/A';
+                document.getElementById('detail_type').textContent = 
+                    (data.type === '1' ? 'Received' : (data.type === '2' ? 'Sent' : 'Unknown')) || 'N/A';
+                document.getElementById('detail_address').textContent = data.address || 'N/A';
+                document.getElementById('detail_amount').textContent = 
+                    (data.amount !== null ? data.amount.toFixed(2) + ' RWF' : 'N/A');
+                document.getElementById('detail_body').textContent = data.body || 'N/A';
+                document.getElementById('detail_contact_name').textContent = data.contact_name || 'N/A';
+                document.getElementById('detail_service_center').textContent = data.service_center || 'N/A';
+                document.getElementById('detail_protocol').textContent = data.protocol || 'N/A';
+                document.getElementById('detail_subject').textContent = data.subject || 'N/A';
+                document.getElementById('detail_toa').textContent = data.toa || 'N/A';
+                document.getElementById('detail_sc_toa').textContent = data.sc_toa || 'N/A';
+                document.getElementById('detail_read').textContent = (data.read === '1' ? 'Read' : 'Unread') || 'N/A';
+                document.getElementById('detail_status').textContent = data.status || 'N/A';
+                document.getElementById('detail_locked').textContent = (data.locked === '1' ? 'Yes' : 'No') || 'N/A';
+                document.getElementById('detail_date_sent').textContent = data.date_sent || 'N/A';
+                document.getElementById('detail_sub_id').textContent = data.sub_id || 'N/A';
+
+                modal.classList.add('show');
+            } catch (error) {
+                console.error('Error fetching transaction details:', error);
+                alert('Could not load transaction details. Please try again.');
+            }
+        };
+
+        window.closeTransactionDetailsModal = function() {
+            modal.classList.remove('show');
+        };
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeTransactionDetailsModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.classList.contains('show')) {
+                closeTransactionDetailsModal();
+            }
+        });
+
+        // Add loading animation to buttons
+        // document.querySelectorAll('button[type="submit"]').forEach(button => {
+        //     button.addEventListener('click', function() {
+        //         const originalText = this.innerHTML;
+        //         this.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 inline mr-2 animate-spin"></i>Loading...';
+        //         this.disabled = true;
+                
+        //         // Re-enable after form submission
+        //         setTimeout(() => {
+        //             this.innerHTML = originalText;
+        //             this.disabled = false;
+        //             lucide.createIcons();
+        //         }, 2000);
+        //     });
+        // });
+
+        // Smooth number counting animation for stats
+        function animateNumber(element, target) {
+            const duration = 2000;
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current).toLocaleString();
+            }, 16);
+        }
+
+        // Initialize number animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const statElements = document.querySelectorAll('.pulse-stat p');
+            statElements.forEach(element => {
+                const target = parseInt(element.textContent.replace(/,/g, ''));
+                if (!isNaN(target)) {
+                    animateNumber(element, target);
+                }
+            });
+        });
+
+        console.log('Enhanced MoMo SMS Dashboard loaded successfully!');
+    </script>
+</body>
+</html>
