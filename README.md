@@ -12,7 +12,7 @@ This project is a web application built with Flask and SQLAlchemy to manage and 
 - Dashboard to view aggregated and detailed SMS transactions
 
 ### Project Structure
-
+```
 MoMoSMSDashboard/
 ├── backend/
 │   ├── app.py           # Main server entry
@@ -37,50 +37,52 @@ MoMoSMSDashboard/
 │   ├── js/
 │      └── script.js
 │
-├── README.md            # Project documentation
-├── report.pdf           # Project report (placeholder)
+├── README.md            
+└── System Documentation.pdf   
+```
 
 ### Setup Instructions
 
 Clone the repository:
-""" 
+```
 git clone <repository-url>
 cd MoMoSMSDashboard
-""" 
+```
 
 Create a virtual environment (recommended):
-
+```
 python -m venv venv
+```
 # On Windows
+```
 venv\Scripts\activate
+```
 # On macOS/Linux
+```
 source venv/bin/activate
-
+```
 Install dependencies:
-
+```
 pip install Flask SQLAlchemy Werkzeug
-
+```
 (Note: Werkzeug is usually installed with Flask, but explicitly listing it helps if issues arise with password hashing.)
 
 Run the application:
-
+```
 export FLASK_APP=backend/app.py
 export FLASK_ENV=development # For development mode with hot-reloading
 flask run
-
+```
 The application will typically run on http://127.0.0.1:5000/.
 
-Usage
-Register: Navigate to /register to create a new user account.
+### Usage
+- Register: Navigate to /register to create a new user account.
 
-Login: Use your credentials to log in at /login.
+- Login: Use your credentials to log in at /login.
 
-Upload XML: On the dashboard, you will find an option to upload your SMS backup XML file. The application will process this file and populate the database.
+- Upload XML: On the dashboard, you will find an option to upload your SMS backup XML file. The application will process this file and populate the database.
 
-View Dashboard: Once data is uploaded, the dashboard will display your SMS transactions.
+- View Dashboard: Once data is uploaded, the dashboard will display your SMS transactions.
 
-Database
+### Database
 The application uses SQLite, and the database file sms_database.db will be created in the root directory upon the first run. SQLAlchemy handles the schema definition and migrations automatically.
-
-Contributing
-Feel free to contribute to this project.
